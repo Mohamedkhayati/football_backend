@@ -21,20 +21,15 @@ public class RagService {
     private EmbeddingStore<TextSegment> embeddingStore;
     
     public String findRelevantContext(String query, int maxResults) {
+        // Embed the user's query
         Embedding queryEmbedding = embeddingModel.embed(query).content();
-        
-        List<EmbeddingMatch<TextSegment>> matches = embeddingStore.findRelevant(
-                queryEmbedding, 
-                maxResults, 
-                0.7  // Minimum similarity score
-        );
-        
-        if (matches.isEmpty()) {
-            return "No relevant context found in documents.";
-        }
-        
+        // Find the closest text chunks to the query
+        List<EmbeddingMatch<TextSegment>> matches = embeddingStore.findRelevant(queryEmbedding, maxResults, 0.7);
+        if (matches.isEmpty()) return "No relevant context found in documents.";
         return matches.stream()
-                .map(match -> match.embedded().text())
-                .collect(Collectors.joining("\n\n"));
+            .map(match -> match.embedded().text())
+            .collect(Collectors.joining("\n\n"));
     }
+
+    
 }
